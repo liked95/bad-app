@@ -38,6 +38,13 @@ const IframeWrapper = styled.div`
 export default function AddPage() {
   const navigate = useNavigate();
 
+  const [title, setTitle] = useState("")
+  const [textValue, setTextValue] = useState("")
+
+
+
+
+
 
 
 
@@ -51,8 +58,10 @@ export default function AddPage() {
           <Layout.Section >
             <Card sectioned>
               <FormLayout>
-                <TextField label="Title"
-                  onChange={() => { }}
+                <TextField
+                  label="Title"
+                  value={title}
+                  onChange={value => setTitle(value)}
                   autoComplete="off" />
 
 
@@ -108,9 +117,11 @@ export default function AddPage() {
                     </ToolWrapper>
 
                     <IframeWrapper>
-                      <iframe src="" frameborder="0">
+                      <textarea
+                        value={textValue}
+                        onChange={e => setTextValue(e.target.value)}>
 
-                      </iframe>
+                      </textarea>
                     </IframeWrapper>
                   </ContentWrapper>
                 </div>
@@ -130,7 +141,7 @@ export default function AddPage() {
             </Card>
 
             <Card title="Online store" sectioned>
-              <p>Add tags to your order.</p>
+              <p>Add tags to your order Near.</p>
             </Card>
           </Layout.Section>
 

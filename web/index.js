@@ -8,6 +8,8 @@ import shopify from "./shopify.js";
 import productCreator from "./product-creator.js";
 import GDPRWebhookHandlers from "./gdpr.js";
 
+
+
 // @ts-ignore
 const PORT = parseInt(process.env.BACKEND_PORT || process.env.PORT, 10);
 
@@ -37,11 +39,45 @@ app.use("/api/*", shopify.validateAuthenticatedSession());
 app.use(express.json());
 
 app.get("/api/products/count", async (_req, res) => {
-  const countData = await shopify.api.rest.Product.count({
-    session: res.locals.shopify.session,
-  });
-  res.status(200).send(countData);
+  try {
+    const productCountData = await shopify.api.rest.Product.count({
+      session: res.locals.shopify.session,
+    });
+    res.status(200).send(productCountData);
+  } catch (error) {
+    console.log(error)
+  }
 });
+
+
+// GET a list of pages
+app.get("/api/pages/", async (_req, res) => {
+  try {
+    let pageCountData = await shopify.api.rest.Page.all({
+      session: res.locals.shopify.session
+    });
+    console.log("------------------------------: ", pageCountData)
+    res.status(200).send(pageCountData);
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+// #POST: Creates a page
+app.get("/api/pages", async (_req, res) => {
+  try {
+    let postedPage = await shopify.api.rest.Page({
+      session: res.locals.shopify.session
+    });
+    console.log("------------------------------: ", postedPage)
+    res.status(200).send(postedPage);
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+
 
 
 
@@ -60,7 +96,6 @@ app.get("/api/products/create", async (_req, res) => {
 });
 
 
-app.get("api/pages", )
 
 app.use(serveStatic(STATIC_PATH, { index: false }));
 

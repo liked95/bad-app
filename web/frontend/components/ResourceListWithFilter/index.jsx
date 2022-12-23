@@ -11,14 +11,14 @@ import {
 
 } from '@shopify/polaris';
 
-function ResourceListWithFilter({ query }) {
+function ResourceListWithFilter({ query, pages }) {
     console.log(query)
     const [selectedItems, setSelectedItems] = useState([]);
     const [sortValue, setSortValue] = useState('DATE_MODIFIED_DESC');
     const [queryValue, setQueryValue] = useState(query);
 
     const [accountStatus, setAccountStatus] = useState(null);
-    
+
     const handleAccountStatusChange = useCallback(
         (value) => setAccountStatus(value),
         [],
@@ -109,8 +109,8 @@ function ResourceListWithFilter({ query }) {
         <ResourceList
 
             resourceName={resourceName}
-            items={items}
-            renderItem={renderItem}
+            items={pages}
+            renderItem={renderPage}
             selectedItems={selectedItems}
             onSelectionChange={setSelectedItems}
             bulkActions={bulkActions}
@@ -124,26 +124,23 @@ function ResourceListWithFilter({ query }) {
                 setSortValue(selected);
                 console.log(`Sort option changed to ${selected}.`);
             }}
-            
+
             filterControl={filterControl}
         />
     );
 
-    function renderItem(item) {
-        const { id, url, name, location } = item;
-        const media = <Avatar customer size="medium" name={name} />;
+    function renderPage(page) {
+        const { id, title, body_html, created_at } = page;
+        
+        // const media = <Avatar customer size="medium" name={name} />;
 
         return (
             <ResourceItem
                 id={id}
-                url={url}
-                media={media}
-                accessibilityLabel={`View details for ${name}`}
-                persistActions
             >
 
-                <div>{name}</div>
-                <div>{location}</div>
+                <div>{title}</div>
+                <div>{body_html}</div>
             </ResourceItem>
         );
     }

@@ -9,6 +9,8 @@ import {
   ResourceList,
   SkeletonBodyText,
   Tabs,
+  Spinner,
+  Button
 } from "@shopify/polaris";
 
 import {
@@ -20,9 +22,14 @@ import { useAuthenticatedFetch } from "../hooks";
 
 
 export default function HomePage() {
+  const [pages, setPages] = useState([])
+  const [loading, setLoading] = useState(true)
+
+
   let fetchApi = useAuthenticatedFetch()
-  const callApi = async () => {
-    let res =  await fetchApi('/api/products/count', {
+
+  const getPages = async () => {
+    let res = await fetchApi('/api/pages', {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -31,13 +38,15 @@ export default function HomePage() {
     })
 
     let data = await res.json()
-
-    console.log(data)
+    return data
   }
 
-  useEffect(() => {
-    callApi()
+  useEffect(async () => {
+    let data = await getPages()
+    setPages(data)
+    setLoading(false)
   }, [])
+
 
 
 
@@ -73,16 +82,23 @@ export default function HomePage() {
 
   return (
     <Page
-      title="My Shopify App"
+      title="My Shopify Pages"
       primaryAction={{ content: "Add page", onAction: () => navigate("/addpage") }}
     >
-      <Layout>
+
+      {loading && <Layout>
+        <Spinner></Spinner>
+      </Layout>}
+
+      {!loading && <Layout>
         <Layout.Section>
+          <Button onClick={getPages}>GET PAGES</Button>
+          <Button>CREATE PAGES</Button>
           <Banner
             status="info"
             icon={LockIcon}
             title="Store access is restricted"
-            action={{ content: "See store password", onAction: handleClickBanner }}
+            action={{ content: "See store password", onAction: () => getPages() }}
           >
             <p>While your online store is in development, only visitors with the password can access it.</p>
 
@@ -92,12 +108,12 @@ export default function HomePage() {
         <Layout.Section>
           <Card>
             <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
-              <ResourceListWithFilter query={tabs[selected].query} />
+              <ResourceListWithFilter query={tabs[selected].query} pages = {pages}/>
             </Tabs>
 
           </Card>
         </Layout.Section>
-      </Layout>
+      </Layout>}
 
 
     </Page>
