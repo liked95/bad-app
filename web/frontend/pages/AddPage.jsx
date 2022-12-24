@@ -17,6 +17,7 @@ import {
 } from "@shopify/polaris";
 
 import { useCallback, useState } from "react";
+import { useAuthenticatedFetch } from "../hooks";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -37,11 +38,29 @@ const IframeWrapper = styled.div`
 
 export default function AddPage() {
   const navigate = useNavigate();
+  let fetchApi = useAuthenticatedFetch()
 
   const [title, setTitle] = useState("")
   const [textValue, setTextValue] = useState("")
 
+  const handleCreatePage = async () => {
+    let res = await fetchApi('/api/pages', {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: 'application/json'
+      },
+      body: JSON.stringify(
+        {
+          title: title,
+          body_html: textValue
+        }
+      )
+    })
 
+    let data = await res.json()
+    console.log(data)
+  }
 
 
 
@@ -153,6 +172,7 @@ export default function AddPage() {
             <PageActions
               primaryAction={{
                 content: 'Save',
+                onAction: handleCreatePage
               }}
               secondaryActions={[
                 {

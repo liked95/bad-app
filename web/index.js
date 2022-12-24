@@ -64,17 +64,36 @@ app.get("/api/pages/", async (_req, res) => {
 })
 
 // #POST: Creates a page
-app.get("/api/pages", async (_req, res) => {
+app.post("/api/pages", async (_req, res) => {
   try {
-    let postedPage = await shopify.api.rest.Page({
+    const page = new shopify.api.rest.Page({
       session: res.locals.shopify.session
     });
-    console.log("------------------------------: ", postedPage)
-    res.status(200).send(postedPage);
+
+    page.title = _req.body.title
+    page.body_html = _req.body.body_html
+    page.published = false;
+    await page.save({
+      update: true,
+    });
+    
+    console.log("__-----------------------_req body:", _req.body)
+
+    res.status(200).send(page);
   } catch (error) {
     console.log(error)
   }
 })
+
+
+
+
+
+
+
+
+
+
 
 
 
