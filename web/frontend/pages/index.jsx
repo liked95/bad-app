@@ -19,6 +19,7 @@ import {
 import { useCallback, useState, useEffect } from "react";
 import ResourceListWithFilter from "../components/ResourceListWithFilter";
 import { useAuthenticatedFetch } from "../hooks";
+import { headers } from "../custom-api";
 
 
 export default function HomePage() {
@@ -31,10 +32,7 @@ export default function HomePage() {
   const getPages = async () => {
     let res = await fetchApi('/api/pages', {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: 'application/json'
-      }
+      headers
     })
 
     let data = await res.json()
@@ -56,16 +54,6 @@ export default function HomePage() {
       id: 1,
       query: "All",
       content: "All"
-    },
-    {
-      id: 2,
-      query: "Custom 1",
-      content: "Custom 1"
-    },
-    {
-      id: 3,
-      query: "Custom 2",
-      content: "Custom 2"
     },
   ]
 
@@ -92,8 +80,8 @@ export default function HomePage() {
 
       {!loading && <Layout>
         <Layout.Section>
-          <Button onClick={getPages}>GET PAGES</Button>
-          <Button>CREATE PAGES</Button>
+          {/* <Button onClick={getPages}>GET PAGES</Button>
+          <Button>CREATE PAGES</Button> */}
           <Banner
             status="info"
             icon={LockIcon}
@@ -108,7 +96,7 @@ export default function HomePage() {
         <Layout.Section>
           <Card>
             <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
-              <ResourceListWithFilter query={tabs[selected].query} pages = {pages}/>
+              <ResourceListWithFilter  pageItems={pages} />
             </Tabs>
 
           </Card>

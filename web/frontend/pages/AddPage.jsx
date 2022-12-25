@@ -12,7 +12,8 @@ import {
   Stack,
   TextField,
   ButtonGroup,
-  Button
+  Button,
+  ChoiceList
 
 } from "@shopify/polaris";
 
@@ -40,8 +41,14 @@ export default function AddPage() {
   const navigate = useNavigate();
   let fetchApi = useAuthenticatedFetch()
 
+  // Title and editable area
   const [title, setTitle] = useState("")
   const [textValue, setTextValue] = useState("")
+
+  // radio button visiblity
+  const [visiblity, setVisiblity] = useState(['visible']);
+  const handleChange = useCallback((value) => setVisiblity(value), []);
+  console.log(visiblity)
 
   const handleCreatePage = async () => {
     let res = await fetchApi('/api/pages', {
@@ -53,7 +60,8 @@ export default function AddPage() {
       body: JSON.stringify(
         {
           title: title,
-          body_html: textValue
+          body_html: textValue,
+          published: visiblity[0] == 'visible'
         }
       )
     })
@@ -150,13 +158,20 @@ export default function AddPage() {
             </Card>
 
             <Card title="Search engine listing preview" sectioned>
-              <p>Add tags to your order.</p>
+              <p>Add a title and description to see how this Page might appear in a search engine listing</p>
             </Card>
           </Layout.Section>
 
           <Layout.Section secondary>
             <Card title="Visibility" sectioned>
-              <p>Add tags to your order.</p>
+              <ChoiceList
+                choices={[
+                  { label: 'Visible', value: 'visible' },
+                  { label: 'Hidden', value: 'hidden' },
+                ]}
+                selected={visiblity}
+                onChange={handleChange}
+              />
             </Card>
 
             <Card title="Online store" sectioned>

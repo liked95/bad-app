@@ -5,24 +5,118 @@ import {
     Button,
     Card,
     ResourceList,
-    Avatar,
     ResourceItem,
     ChoiceList,
-
+    TextStyle,
+    Badge,
 } from '@shopify/polaris';
+import { useAuthenticatedFetch } from '../../hooks';
 
-function ResourceListWithFilter({ query, pages }) {
-    console.log(query)
+function ResourceListWithFilter({ pageItems }) {
+    let fetchApi = useAuthenticatedFetch()
+    const [isPageLoading, setIsPageLoading] = useState(false)
+    const [pages, setPages] = useState(pageItems)
     const [selectedItems, setSelectedItems] = useState([]);
     const [sortValue, setSortValue] = useState('DATE_MODIFIED_DESC');
-    const [queryValue, setQueryValue] = useState(query);
-
+    const [queryValue, setQueryValue] = useState("");
     const [accountStatus, setAccountStatus] = useState(null);
 
+
+
     const handleAccountStatusChange = useCallback(
-        (value) => setAccountStatus(value),
-        [],
+        (value) => setAccountStatus(value), [],
     );
+
+    // DELETE PAGES
+    const handleDeletePages = async () => {
+        let pageItems = [...pages]
+        setIsPageLoading(true)
+        try {
+            for (let id of selectedItems) {
+                let res = await fetchApi(`/api/pages/${id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: 'application/json'
+                    }
+                })
+
+                pageItems = pageItems.filter(page => page.id != id)
+            }
+            setPages(pageItems)
+            setIsPageLoading(false)
+            setSelectedItems([])
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    // HIDE PAGES
+    const handleHidePages = async () => {
+        let pageItems = [...pages]
+        setIsPageLoading(true)
+        try {
+            for (let id of selectedItems) {
+                let page = pageItems.find(page => page.id == id)
+                page.published_at = null
+
+                let res = await fetchApi(`/api/pages/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({
+                        isShown: false
+                    })
+                })
+            }
+            setPages(pageItems)
+            setIsPageLoading(false)
+            setSelectedItems([])
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    // SHOW PAGES
+    const handleShowPages = async () => {
+        let pageItems = [...pages]
+        setIsPageLoading(true)
+        try {
+            for (let id of selectedItems) {
+                let page = pageItems.find(page => page.id == id)
+                page.published_at = new Date().toISOString()
+
+                let res = await fetchApi(`/api/pages/${id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        Accept: 'application/json'
+                    },
+                    body: JSON.stringify({
+                        isShown: true
+                    })
+                })
+            }
+            setPages(pageItems)
+            setIsPageLoading(false)
+            setSelectedItems([])
+        } catch (error) {
+            console.log(error)
+        }
+    }
+
+
+    // FILTER PAGE
+    const handleQueryChange = value => {
+        setQueryValue(value)
+        let filterPageItems = [...pageItems].filter(page => page.title.toLowerCase().includes(value.trim().toLowerCase()))
+        setPages(filterPageItems)
+    }
+
 
 
 
@@ -53,17 +147,20 @@ function ResourceListWithFilter({ query, pages }) {
     const bulkActions = [
         {
             content: 'Make selected pages visible',
-            onAction: () => console.log('Todo: implement bulk add tags'),
+            onAction: handleShowPages
         },
         {
             content: 'Hide selected pages',
-            onAction: () => console.log('Todo: implement bulk remove tags'),
+            onAction: handleHidePages,
         },
         {
 
             content: 'Delete pages',
-            onAction: () => console.log('Todo: implement bulk delete'),
+            destructive: true,
+            onAction: handleDeletePages,
         },
+
+
     ];
 
     const filters = [
@@ -93,8 +190,11 @@ function ResourceListWithFilter({ query, pages }) {
     const filterControl = (
         <Filters
             queryValue={queryValue}
-            onQueryChange={value => setQueryValue(value)}
-            onQueryClear={() => setQueryValue("")}
+            onQueryChange={handleQueryChange}
+            onQueryClear={() => {
+                setQueryValue("")
+                setPages(pageItems)
+            }}
             filters={filters}
 
         >
@@ -107,7 +207,6 @@ function ResourceListWithFilter({ query, pages }) {
 
     return (
         <ResourceList
-
             resourceName={resourceName}
             items={pages}
             renderItem={renderPage}
@@ -115,7 +214,7 @@ function ResourceListWithFilter({ query, pages }) {
             onSelectionChange={setSelectedItems}
             bulkActions={bulkActions}
             sortValue={sortValue}
-
+            loading={isPageLoading}
             sortOptions={[
                 { label: 'Newest update', value: 'DATE_MODIFIED_DESC' },
                 { label: 'Oldest update', value: 'DATE_MODIFIED_ASC' },
@@ -130,17 +229,31 @@ function ResourceListWithFilter({ query, pages }) {
     );
 
     function renderPage(page) {
-        const { id, title, body_html, created_at } = page;
-        
+        const { id, title, body_html, created_at, published_at } = page;
+
         // const media = <Avatar customer size="medium" name={name} />;
 
         return (
             <ResourceItem
                 id={id}
             >
+                <h3>
+                    <TextStyle variant="heading4xl" as="h1" variation='strong'>
+                        {title}
+                    </TextStyle>
+                    &nbsp;
+                    {!published_at && <Badge>Hidden</Badge>}
+                </h3>
 
-                <div>{title}</div>
-                <div>{body_html}</div>
+                <div>
+                    <TextStyle variant="heading4xl" as="h2" variation='subdued'>
+                        {body_html}
+                    </TextStyle>
+                </div>
+
+                <TextStyle variant="heading4xl" as="h2" variation='subdued'>
+                    {created_at}
+                </TextStyle>
             </ResourceItem>
         );
     }

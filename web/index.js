@@ -72,11 +72,50 @@ app.post("/api/pages", async (_req, res) => {
 
     page.title = _req.body.title
     page.body_html = _req.body.body_html
-    page.published = false;
+    page.published = _req.body.published
     await page.save({
       update: true,
     });
-    
+
+    console.log("__-----------------------_req body:", _req.body)
+
+    res.status(200).send(page);
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// #DELETE: Delte a page
+app.delete("/api/pages/:id", async (_req, res) => {
+  try {
+    const deletedPage = await shopify.api.rest.Page.delete({
+      session: res.locals.shopify.session,
+      id: _req.params.id
+    });
+
+    console.log("__-----------------------_req body:", _req.params)
+
+    res.status(200).send(deletedPage);
+  } catch (error) {
+    console.log(error)
+  }
+})
+
+
+// #PUT: UPDATE a page
+app.put("/api/pages/:id", async (_req, res) => {
+  try {
+    const page = new shopify.api.rest.Page({
+      session: res.locals.shopify.session,
+    });
+    page.id = _req.params.id
+    page.published = _req.body.isShown
+
+    await page.save({
+      update: true,
+    });
+
     console.log("__-----------------------_req body:", _req.body)
 
     res.status(200).send(page);
@@ -100,19 +139,19 @@ app.post("/api/pages", async (_req, res) => {
 
 
 
-app.get("/api/products/create", async (_req, res) => {
-  let status = 200;
-  let error = null;
+// app.get("/api/products/create", async (_req, res) => {
+//   let status = 200;
+//   let error = null;
 
-  try {
-    await productCreator(res.locals.shopify.session);
-  } catch (e) {
-    console.log(`Failed to process products/create: ${e.message}`);
-    status = 500;
-    error = e.message;
-  }
-  res.status(status).send({ success: status === 200, error });
-});
+//   try {
+//     await productCreator(res.locals.shopify.session);
+//   } catch (e) {
+//     console.log(`Failed to process products/create: ${e.message}`);
+//     status = 500;
+//     error = e.message;
+//   }
+//   res.status(status).send({ success: status === 200, error });
+// });
 
 
 
