@@ -30,21 +30,24 @@ function ResourceListWithFilter({ pageItems }) {
     // DELETE PAGES
     const handleDeletePages = async () => {
         let pageItems = [...pages]
-        setIsPageLoading(true)
-        try {
-            for (let id of selectedItems) {
-                let res = await fetchApi(`/api/pages/${id}`, {
-                    method: "DELETE",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: 'application/json'
-                    }
-                })
 
-                pageItems = pageItems.filter(page => page.id != id)
-            }
-            setPages(pageItems)
+
+        const promises = selectedItems.map(async (id) => {
+            await fetchApi(`/api/pages/${id}`, {
+                method: "DELETE",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: 'application/json'
+                }
+            })
+            pageItems = pageItems.filter(page => page.id != id)
+        })
+
+        try {
+            setIsPageLoading(true)
+            let res = await Promise.all(promises)
             setIsPageLoading(false)
+            setPages(pageItems)
             setSelectedItems([])
         } catch (error) {
             console.log(error)
@@ -55,25 +58,29 @@ function ResourceListWithFilter({ pageItems }) {
     // HIDE PAGES
     const handleHidePages = async () => {
         let pageItems = [...pages]
-        setIsPageLoading(true)
-        try {
-            for (let id of selectedItems) {
-                let page = pageItems.find(page => page.id == id)
-                page.published_at = null
 
-                let res = await fetchApi(`/api/pages/${id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: 'application/json'
-                    },
-                    body: JSON.stringify({
-                        isShown: false
-                    })
+        const promises = selectedItems.map(async (id) => {
+            await fetchApi(`/api/pages/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({
+                    isShown: false
                 })
-            }
-            setPages(pageItems)
+            })
+
+            let page = pageItems.find(page => page.id == id)
+            page.published_at = null
+        })
+
+
+        try {
+            setIsPageLoading(true)
+            let res = await Promise.all(promises)
             setIsPageLoading(false)
+            setPages(pageItems)
             setSelectedItems([])
         } catch (error) {
             console.log(error)
@@ -84,25 +91,28 @@ function ResourceListWithFilter({ pageItems }) {
     // SHOW PAGES
     const handleShowPages = async () => {
         let pageItems = [...pages]
-        setIsPageLoading(true)
-        try {
-            for (let id of selectedItems) {
-                let page = pageItems.find(page => page.id == id)
-                page.published_at = new Date().toISOString()
 
-                let res = await fetchApi(`/api/pages/${id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        Accept: 'application/json'
-                    },
-                    body: JSON.stringify({
-                        isShown: true
-                    })
+        const promises = selectedItems.map(async (id) => {
+            await fetchApi(`/api/pages/${id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Accept: 'application/json'
+                },
+                body: JSON.stringify({
+                    isShown: true
                 })
-            }
-            setPages(pageItems)
+            })
+
+            let page = pageItems.find(page => page.id == id)
+            page.published_at = new Date().toISOString()
+        })
+
+        try {
+            setIsPageLoading(true)
+            let res = await Promise.all(promises)
             setIsPageLoading(false)
+            setPages(pageItems)
             setSelectedItems([])
         } catch (error) {
             console.log(error)
