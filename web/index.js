@@ -63,6 +63,22 @@ app.get("/api/pages/", async (_req, res) => {
   }
 })
 
+
+
+// GET a single page
+app.get("/api/pages/:id", async (_req, res) => {
+  try {
+    let page = await shopify.api.rest.Page.find({
+      session: res.locals.shopify.session,
+      id: _req.params.id
+    });
+
+    res.status(200).send(page);
+  } catch (error) {
+    console.log(error)
+  }
+})
+
 // #POST: Creates a page
 app.post("/api/pages", async (_req, res) => {
   try {

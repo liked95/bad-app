@@ -11,21 +11,57 @@ import {
     Badge,
 } from '@shopify/polaris';
 import { useAuthenticatedFetch } from '../../hooks';
+import { useEffect } from 'react';
+import { formatDate, stripHTML } from '../../util';
+import { useNavigate } from '@shopify/app-bridge-react';
+
 
 function ResourceListWithFilter({ pageItems }) {
+    const navigate = useNavigate()
+
     let fetchApi = useAuthenticatedFetch()
     const [isPageLoading, setIsPageLoading] = useState(false)
     const [pages, setPages] = useState(pageItems)
     const [selectedItems, setSelectedItems] = useState([]);
-    const [sortValue, setSortValue] = useState('DATE_MODIFIED_DESC');
     const [queryValue, setQueryValue] = useState("");
-    const [accountStatus, setAccountStatus] = useState(null);
+    const [sortValue, setSortValue] = useState('DATE_MODIFIED_DESC');
+    const [option, setOption] = useState(null);
 
 
 
-    const handleAccountStatusChange = useCallback(
-        (value) => setAccountStatus(value), [],
-    );
+    useEffect(() => {
+        // copy the value of the origin pageItem arr
+        let copiedPages = [...pageItems]
+
+        // radio filter by visibility
+        if (option && option[0] == "visible") {
+            copiedPages = copiedPages.filter(page => page.published_at != null)
+        }
+
+        if (option && option[0] == "hidden") {
+            copiedPages = copiedPages.filter(page => page.published_at == null)
+        }
+
+        // filter by title 
+        copiedPages = copiedPages.filter(page => page.title.toLowerCase().includes(queryValue.trim().toLowerCase()))
+
+        // sort by params
+        if (sortValue == "DATE_MODIFIED_DESC") copiedPages.sort((a, b) => new Date(b.updated_at) - new Date(a.updated_at))
+        if (sortValue == "DATE_MODIFIED_ASC") copiedPages.sort((a, b) => new Date(a.updated_at) - new Date(b.updated_at))
+        if (sortValue == "TITLE_DESC") copiedPages.sort((a, b) => a.title.localeCompare(b.title))
+        if (sortValue == "TITLE_DESC") copiedPages.sort((a, b) => b.title.localeCompare(a.title))
+
+
+
+        setPages(copiedPages)
+
+    }, [option, queryValue, sortValue])
+
+
+    const showDeleteModal =  () => {
+        
+    }
+
 
     // DELETE PAGES
     const handleDeletePages = async () => {
@@ -53,7 +89,6 @@ function ResourceListWithFilter({ pageItems }) {
             console.log(error)
         }
     }
-
 
     // HIDE PAGES
     const handleHidePages = async () => {
@@ -87,7 +122,6 @@ function ResourceListWithFilter({ pageItems }) {
         }
     }
 
-
     // SHOW PAGES
     const handleShowPages = async () => {
         let pageItems = [...pages]
@@ -120,11 +154,32 @@ function ResourceListWithFilter({ pageItems }) {
     }
 
 
-    // FILTER PAGE
-    const handleQueryChange = value => {
-        setQueryValue(value)
-        let filterPageItems = [...pageItems].filter(page => page.title.toLowerCase().includes(value.trim().toLowerCase()))
-        setPages(filterPageItems)
+    // CHOICE LIST FILTER RADIO
+    const handleRemoveTag = () => {
+        console.log("tag remove")
+        setOption(null)
+    }
+
+    const appliedFilters = []
+    if (option && option.length > 0) {
+        const key = 'visibilityOption'
+        appliedFilters.push({
+            key,
+            label: `Visiblity is ${option[0]}`,
+            onRemove: handleRemoveTag
+        })
+    }
+
+    console.log(appliedFilters)
+
+
+
+    const handleChangeOption = useCallback(
+        (value) => setOption(value), [],
+    );
+
+    const handleClearAll = () => {
+        console.log("Clear all")
     }
 
 
@@ -135,24 +190,6 @@ function ResourceListWithFilter({ pageItems }) {
         singular: 'page',
         plural: 'pages',
     };
-
-    const items = [
-        {
-            id: 112,
-            url: 'customers/341',
-            name: 'Mae Jemison',
-            location: 'Decatur, USA',
-            latestOrderUrl: 'orders/1456',
-        },
-        {
-            id: 212,
-            url: 'customers/256',
-            name: 'Ellen Ochoa',
-            location: 'Los Angeles, USA',
-            latestOrderUrl: 'orders/1457',
-        },
-    ];
-
 
     const bulkActions = [
         {
@@ -179,14 +216,14 @@ function ResourceListWithFilter({ pageItems }) {
             label: 'Visibility',
             filter: (
                 <ChoiceList
-                    title="Account status"
+
                     titleHidden
                     choices={[
                         { label: 'Visible', value: 'visible' },
                         { label: 'Hidden', value: 'hidden' },
                     ]}
-                    selected={accountStatus || []}
-                    onChange={handleAccountStatusChange}
+                    selected={option || []}
+                    onChange={handleChangeOption}
 
                 />
             ),
@@ -200,12 +237,15 @@ function ResourceListWithFilter({ pageItems }) {
     const filterControl = (
         <Filters
             queryValue={queryValue}
-            onQueryChange={handleQueryChange}
+            onQueryChange={value => setQueryValue(value)}
             onQueryClear={() => {
                 setQueryValue("")
                 setPages(pageItems)
             }}
             filters={filters}
+            onClearAll={handleClearAll}
+            appliedFilters={appliedFilters}
+
 
         >
 
@@ -228,6 +268,8 @@ function ResourceListWithFilter({ pageItems }) {
             sortOptions={[
                 { label: 'Newest update', value: 'DATE_MODIFIED_DESC' },
                 { label: 'Oldest update', value: 'DATE_MODIFIED_ASC' },
+                { label: 'Title A-Z', value: 'TITLE_ASC' },
+                { label: 'Title Z-A', value: 'TITLE_DESC' },
             ]}
             onSortChange={(selected) => {
                 setSortValue(selected);
@@ -239,13 +281,14 @@ function ResourceListWithFilter({ pageItems }) {
     );
 
     function renderPage(page) {
-        const { id, title, body_html, created_at, published_at } = page;
+        const { id, title, body_html, created_at, published_at, updated_at } = page;
 
         // const media = <Avatar customer size="medium" name={name} />;
 
         return (
             <ResourceItem
                 id={id}
+                onClick={() => navigate(`/edit/?id=${id}`)} 
             >
                 <h3>
                     <TextStyle variant="heading4xl" as="h1" variation='strong'>
@@ -257,12 +300,12 @@ function ResourceListWithFilter({ pageItems }) {
 
                 <div>
                     <TextStyle variant="heading4xl" as="h2" variation='subdued'>
-                        {body_html}
+                        {stripHTML(body_html)}
                     </TextStyle>
                 </div>
 
                 <TextStyle variant="heading4xl" as="h2" variation='subdued'>
-                    {created_at}
+                    {formatDate(updated_at)}
                 </TextStyle>
             </ResourceItem>
         );

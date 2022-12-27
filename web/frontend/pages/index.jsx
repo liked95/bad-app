@@ -2,29 +2,30 @@ import { useNavigate, TitleBar, Loading } from "@shopify/app-bridge-react";
 import {
   Banner,
   Card,
-  EmptyState,
   Icon,
   Layout,
   Page,
-  ResourceList,
-  SkeletonBodyText,
   Tabs,
-  Spinner,
-  Button
+  FooterHelp,
+  Link
 } from "@shopify/polaris";
 
 import {
   LockMajor
 } from '@shopify/polaris-icons';
-import { useCallback, useState, useEffect } from "react";
+import { useCallback, useState, useEffect, useRef, createRef } from "react";
 import ResourceListWithFilter from "../components/ResourceListWithFilter";
 import { useAuthenticatedFetch } from "../hooks";
 import { headers } from "../custom-api";
+import HomePageSkeleton from "../components/Skeleton/HomePageSkeleton";
+import DeletePageModal from '../components/Modal/DeletePageModal'
 
 
 export default function HomePage() {
+  const navigate = useNavigate();
   const [pages, setPages] = useState([])
   const [loading, setLoading] = useState(true)
+  
 
 
   let fetchApi = useAuthenticatedFetch()
@@ -40,15 +41,18 @@ export default function HomePage() {
   }
 
   useEffect(async () => {
-    let data = await getPages()
-    setPages(data)
-    setLoading(false)
+    try {
+      let data = await getPages()
+      setPages(data)
+      setLoading(false)
+    } catch (error) {
+      console.log(error)
+    }
   }, [])
 
 
 
 
-  const navigate = useNavigate();
   const tabs = [
     {
       id: 1,
@@ -74,14 +78,10 @@ export default function HomePage() {
       primaryAction={{ content: "Add page", onAction: () => navigate("/addpage") }}
     >
 
-      {loading && <Layout>
-        <Spinner></Spinner>
-      </Layout>}
+      {loading && <HomePageSkeleton />}
 
       {!loading && <Layout>
         <Layout.Section>
-          {/* <Button onClick={getPages}>GET PAGES</Button>
-          <Button>CREATE PAGES</Button> */}
           <Banner
             status="info"
             icon={LockIcon}
@@ -96,12 +96,25 @@ export default function HomePage() {
         <Layout.Section>
           <Card>
             <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
-              <ResourceListWithFilter  pageItems={pages} />
+              <ResourceListWithFilter pageItems={pages}  />
             </Tabs>
 
           </Card>
         </Layout.Section>
-      </Layout>}
+
+        <Layout.Section>
+          <FooterHelp>
+            Learn more about{' '}
+            <Link url="https://help.shopify.com/en/manual/online-store/themes/theme-structure/pages">
+              pages
+            </Link>
+          </FooterHelp>
+        </Layout.Section>
+      </Layout>
+
+      }
+
+      {/* <DeletePageModal/> */}
 
 
     </Page>
