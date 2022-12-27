@@ -48,8 +48,10 @@ export default function Edit() {
 
   // Title and editable area
   const [title, setTitle] = useState("")
-  const [textValue, setTextValue] = useState("")
+  const [bodyHTML, setBodyHTML] = useState("")
   const [loading, setLoading] = useState(false)
+
+  console.log(bodyHTML)
 
   // radio button visiblity
   const [visiblity, setVisiblity] = useState(['visible']);
@@ -72,7 +74,7 @@ export default function Edit() {
       let data = await getSinglePage()
       console.log(data)
       setTitle(data.title)
-      setTextValue(data.body_html)
+      setBodyHTML(data.body_html)
       setLoading(false)
       data.published_at ? setVisiblity(['visible']) : setVisiblity(['hidden'])
     } catch (error) {
@@ -91,7 +93,7 @@ export default function Edit() {
       body: JSON.stringify(
         {
           title: title,
-          body_html: textValue,
+          body_html: bodyHTML,
           published: visiblity[0] == 'visible'
         }
       )
@@ -104,7 +106,7 @@ export default function Edit() {
   // text editor
   const [style, setStyle] = useState("para")
   const [align, setAlign] = useState("left")
-  console.log(style, align)
+  // console.log(style, align)
   const handleSetStyle = value => {
     setStyle(value)
   }
@@ -132,8 +134,8 @@ export default function Edit() {
               <TextEditor
                 title={title}
                 setTitle={setTitle}
-                textValue={textValue}
-                setTextValue={setTextValue}
+                bodyHTML={bodyHTML}
+                setBodyHTML={setBodyHTML}
               />
 
               <Card title="Search engine listing preview" sectioned>

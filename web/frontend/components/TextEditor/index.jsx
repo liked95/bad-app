@@ -42,13 +42,16 @@ const IframeWrapper = styled.div`
  min-height: 150px;
 `
 
-function TextEditor({ title, textValue, setTitle, setTextValue }) {
+function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
     const iframeRef = useRef()
     const [style, setStyle] = useState("para")
     const [align, setAlign] = useState("left")
 
     useEffect(() => {
-        iframeRef.current.contentDocument.designMode = "on"
+        // iframeRef.current.contentDocument.designMode = "on"
+        iframeRef.current.contentDocument.body.innerHTML = bodyHTML
+        iframeRef.current.contentDocument.body.style.fontFamily = "Helvetica Neue, Helvetica, Arial, sans-serif"
+
     }, []);
 
     const handleSetStyle = value => {
@@ -59,7 +62,11 @@ function TextEditor({ title, textValue, setTitle, setTextValue }) {
         setAlign(value)
     }
 
-    console.log(style, align)
+    // console.log(style, align, iframeRef.current)
+    const handleBold = () => {
+
+        RTE.document.execCommand("bold")
+    }
 
 
     return (
@@ -84,7 +91,7 @@ function TextEditor({ title, textValue, setTitle, setTextValue }) {
                                             <ButtonGroup segmented>
                                                 <StylePopover onSetStyle={handleSetStyle} />
 
-                                                <Button size="medium" >
+                                                <Button size="medium" onClick={() => handleBold(RTE)}>
                                                     <BsTypeBold />
                                                 </Button>
 
@@ -154,7 +161,7 @@ function TextEditor({ title, textValue, setTitle, setTextValue }) {
 
                                 <Stack.Item >
                                     <Button size="medium">
-                                        <BsCodeSlash/>
+                                        <BsCodeSlash />
                                     </Button>
                                 </Stack.Item>
 
@@ -163,9 +170,9 @@ function TextEditor({ title, textValue, setTitle, setTextValue }) {
 
                         <IframeWrapper >
                             <iframe style={{ width: "100%", height: "100%", border: 'none' }}
-                                ref={iframeRef}
-                                value={textValue}
-                                onChange={e => setTextValue(e.target.value)}>
+                                id="shopify-editor"
+                                name="RTE"
+                                ref={iframeRef}>
                             </iframe>
                         </IframeWrapper>
                     </ContentWrapper>
@@ -176,5 +183,7 @@ function TextEditor({ title, textValue, setTitle, setTextValue }) {
         </Card>
     )
 }
+
+
 
 export default TextEditor
