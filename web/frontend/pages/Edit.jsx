@@ -83,7 +83,9 @@ export default function Edit() {
   }, [id]);
 
 
-  const handleCreatePage = async () => {
+  const handleUpdatePage = async () => {
+    // check if content is changed
+    
     let res = await fetchApi('/api/pages', {
       method: "POST",
       headers: {
@@ -104,16 +106,6 @@ export default function Edit() {
   }
 
   // text editor
-  const [style, setStyle] = useState("para")
-  const [align, setAlign] = useState("left")
-  // console.log(style, align)
-  const handleSetStyle = value => {
-    setStyle(value)
-  }
-
-  const handleSetAlign = value => {
-    setAlign(value)
-  }
 
 
 
@@ -131,12 +123,14 @@ export default function Edit() {
         <form >
           <Layout>
             <Layout.Section >
-              <TextEditor
-                title={title}
-                setTitle={setTitle}
-                bodyHTML={bodyHTML}
-                setBodyHTML={setBodyHTML}
-              />
+              <Card>
+                <TextEditor
+                  title={title}
+                  setTitle={setTitle}
+                  bodyHTML={bodyHTML}
+                  setBodyHTML={setBodyHTML}
+                />
+              </Card>
 
               <Card title="Search engine listing preview" sectioned>
                 <p>Add a title and description to see how this Page might appear in a search engine listing</p>
@@ -168,7 +162,7 @@ export default function Edit() {
               <PageActions
                 primaryAction={{
                   content: 'Save',
-                  onAction: handleCreatePage
+                  onAction: handleUpdatePage
                 }}
                 secondaryActions={[
                   {

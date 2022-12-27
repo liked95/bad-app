@@ -15,7 +15,10 @@ import {
     ButtonGroup,
     Button,
     ChoiceList,
-    ColorPicker
+    ColorPicker,
+    Modal,
+    TextContainer,
+    Tooltip
 } from "@shopify/polaris";
 
 import { BsTypeItalic, BsTypeUnderline, BsTypeBold, BsListOl, BsListUl, BsTextIndentLeft, BsTextIndentRight, BsCardImage, BsCodeSlash } from "react-icons/bs";
@@ -24,6 +27,9 @@ import StylePopover from "../Popover/StylePopover";
 import AlignPopover from "../Popover/AlignPopover";
 import ColorPickerPopover from "../Popover/ColorPickerPopover";
 import "./Button.css"
+import CreateLinkModal from "../Modal/CreateLinkModal";
+import InsertImgModal from "../Modal/InsertImageModal";
+import InsertVidModal from "../Modal/InsertVidModal";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -41,136 +47,205 @@ const ToolWrapper = styled.div`
 
 const IframeWrapper = styled.div`
  margin-top: 5px;
- min-height: 150px;
+ position: relative;
+ min-height: 250px;
 `
 
 function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
+    const defaultFont = 'Helvetica Neue, Helvetica, Arial, sans-serif'
+    const [isCreateLinkModalOpen, setIsCreateLinkModalOpen] = useState(false)
+    const [isInsertImageModalOpen, setIsInsertImageModalOpen] = useState(false)
+    const [isInsertVidModalOpen, setIsInsertVidModalOpen] = useState(false)
+    const [showHTML, setShowHTML] = useState(false)
+
     const iframeRef = useRef()
 
 
     useEffect(() => {
         iframeRef.current.contentDocument.designMode = "on"
         iframeRef.current.contentDocument.body.innerHTML = bodyHTML
-        iframeRef.current.contentDocument.body.style.fontFamily = "Helvetica Neue, Helvetica, Arial, sans-serif"
+        iframeRef.current.contentDocument.body.style.fontFamily = defaultFont
 
     }, []);
+
+    const handleToggleCode = () => {
+        setShowHTML(prev => !prev)
+        console.log(iframeRef.current.contentDocument.body.innerHTML)
+        let textArea = iframeRef.current.contentDocument.body
+
+        if (!showHTML) {
+            textArea.textContent = textArea.innerHTML
+        } else {
+            textArea.innerHTML = textArea.textContent
+        }
+    }
 
 
 
 
 
     return (
-        <Card sectioned>
-            <FormLayout>
-                <TextField
-                    label="Title"
-                    value={title}
-                    onChange={value => setTitle(value)}
-                    autoComplete="off" />
+        <>
+            <Card sectioned>
+                <FormLayout>
+                    <TextField
+                        label="Title"
+                        value={title}
+                        onChange={value => setTitle(value)}
+                        autoComplete="off" />
 
 
-                <div>
-                    <p> Content</p>
-                    <ContentWrapper>
-                        <ToolWrapper>
-                            <Stack wrap={false}>
+                    <div>
+                        <p> Content</p>
+                        <ContentWrapper>
+                            <ToolWrapper>
+                                <Stack wrap={false} distribution="trailing">
 
-                                <Stack.Item fill>
-                                    <Stack spacing="tight">
-                                        <Stack.Item>
-                                            <ButtonGroup segmented>
-                                                <StylePopover />
+                                    {!showHTML && <Stack.Item fill>
+                                        <Stack spacing="tight">
+                                            <Stack.Item>
+                                                <ButtonGroup segmented>
+                                                    <Tooltip content="Formatting" >
+                                                        <StylePopover />
+                                                    </Tooltip>
 
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("bold")}>
-                                                    <BsTypeBold />
-                                                </Button>
+                                                    <Tooltip content="Bold" >
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("bold")}>
+                                                            <BsTypeBold />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Italic">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("italic")}>
+                                                            <BsTypeItalic />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Underline">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("underline")}>
+                                                            <BsTypeUnderline />
+                                                        </Button>
+                                                    </Tooltip>
+                                                </ButtonGroup>
+                                            </Stack.Item>
+
+                                            <Stack.Item>
+                                                <ButtonGroup segmented>
+                                                    <Tooltip content="Bulleted List">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("insertUnorderedList")}>
+                                                            <BsListUl />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Numbered List">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("insertOrderedList")}>
+                                                            <BsListOl />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Outdent">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("outdent")}>
+                                                            <BsTextIndentRight />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Indent">
+                                                        <Button size="medium" onClick={() => RTE.document.execCommand("indent")}>
+                                                            <BsTextIndentLeft />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                </ButtonGroup>
+                                            </Stack.Item>
+
+                                            <Stack.Item>
+                                                <ButtonGroup segmented>
+                                                    <Tooltip content="Alignment">
+                                                        <AlignPopover />
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Color">
+                                                        <ColorPickerPopover />
+                                                    </Tooltip>
+                                                </ButtonGroup>
+                                            </Stack.Item>
+
+                                            <Stack.Item>
+                                                <ButtonGroup segmented>
+
+                                                    <Tooltip content="Insert Link">
+                                                        <Button size="medium" onClick={() => setIsCreateLinkModalOpen(true)}>
+                                                            <AiOutlineLink />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Insert image">
+                                                        <Button size="medium" onClick={() => setIsInsertImageModalOpen(true)}>
+                                                            <BsCardImage />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Insert video">
+                                                        <Button size="medium" onClick={() => setIsInsertVidModalOpen(true)}>
+                                                            <AiOutlineVideoCameraAdd />
+                                                        </Button>
+                                                    </Tooltip>
+
+                                                    <Tooltip content="Clear formatting">
+                                                        <Button size="medium" onClick={() => {
+                                                            RTE.document.execCommand("removeFormat")
+                                                            RTE.document.execCommand("fontName", false, defaultFont)
+                                                        }}>
+                                                            <AiOutlineStop />
+                                                        </Button>
+                                                    </Tooltip>
+                                                </ButtonGroup>
+                                            </Stack.Item>
+                                        </Stack>
+                                    </Stack.Item>}
 
 
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("italic")}>
-                                                    <BsTypeItalic />
-                                                </Button>
 
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("underline")}>
-                                                    <BsTypeUnderline />
-                                                </Button>
-                                            </ButtonGroup>
-                                        </Stack.Item>
+                                    <Stack.Item >
+                                        <Tooltip content={showHTML ? "Show code" : "Show editor"}>
+                                            <Button size="medium" onClick={handleToggleCode}>
+                                                <BsCodeSlash />
+                                            </Button>
+                                        </Tooltip>
+                                    </Stack.Item>
 
-                                        <Stack.Item>
-                                            <ButtonGroup segmented>
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("insertUnorderedList")}>
-                                                    <BsListUl />
-                                                </Button>
+                                </Stack>
+                            </ToolWrapper>
 
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("insertOrderedList")}>
-                                                    <BsListOl />
-                                                </Button>
-
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("outdent")}>
-                                                    <BsTextIndentRight />
-                                                </Button>
-
-                                                <Button size="medium" onClick={() => RTE.document.execCommand("indent")}>
-                                                    <BsTextIndentLeft />
-                                                </Button>
+                            <IframeWrapper >
+                                <iframe style={{ width: "100%", height: 200, border: 'none', position: 'relative' }}
+                                    id="shopify-editor"
+                                    name="RTE"
+                                    ref={iframeRef}>
+                                </iframe>
+                            </IframeWrapper>
+                        </ContentWrapper>
+                    </div>
 
 
-                                            </ButtonGroup>
-                                        </Stack.Item>
+                </FormLayout >
+            </Card >
 
-                                        <Stack.Item>
-                                            <ButtonGroup segmented>
-                                                <AlignPopover />
-                                                <ColorPickerPopover />
-                                            </ButtonGroup>
-                                        </Stack.Item>
+            <CreateLinkModal
+                isCreateLinkModalOpen={isCreateLinkModalOpen}
+                setIsCreateLinkModalOpen={setIsCreateLinkModalOpen}
+            />
 
-                                        <Stack.Item>
-                                            <ButtonGroup segmented>
+            <InsertImgModal
+                isInsertImageModalOpen={isInsertImageModalOpen}
+                setIsInsertImageModalOpen={setIsInsertImageModalOpen}
+            />
 
-                                                <Button size="medium">
-                                                    <AiOutlineLink />
-                                                </Button>
-
-                                                <Button size="medium">
-                                                    <BsCardImage />
-                                                </Button>
-
-                                                <Button size="medium">
-                                                    <AiOutlineVideoCameraAdd />
-                                                </Button>
-
-                                                <Button size="medium">
-                                                    <AiOutlineStop />
-                                                </Button>
-                                            </ButtonGroup>
-                                        </Stack.Item>
-                                    </Stack>
-                                </Stack.Item>
-
-
-                                <Stack.Item >
-                                    <Button size="medium">
-                                        <BsCodeSlash />
-                                    </Button>
-                                </Stack.Item>
-
-                            </Stack>
-                        </ToolWrapper>
-
-                        <IframeWrapper >
-                            <iframe style={{ width: "100%", height: "100%", border: 'none' }}
-                                id="shopify-editor"
-                                name="RTE"
-                                ref={iframeRef}>
-                            </iframe>
-                        </IframeWrapper>
-                    </ContentWrapper>
-                </div>
-
-
-            </FormLayout >
-        </Card >
+            <InsertVidModal
+                isInsertVidModalOpen={isInsertVidModalOpen}
+                setIsInsertVidModalOpen={setIsInsertVidModalOpen}
+            />
+        </>
     )
 }
 
