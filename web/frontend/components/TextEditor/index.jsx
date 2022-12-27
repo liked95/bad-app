@@ -48,7 +48,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
     const [align, setAlign] = useState("left")
 
     useEffect(() => {
-        // iframeRef.current.contentDocument.designMode = "on"
+        iframeRef.current.contentDocument.designMode = "on"
         iframeRef.current.contentDocument.body.innerHTML = bodyHTML
         iframeRef.current.contentDocument.body.style.fontFamily = "Helvetica Neue, Helvetica, Arial, sans-serif"
 
@@ -62,11 +62,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
         setAlign(value)
     }
 
-    // console.log(style, align, iframeRef.current)
-    const handleBold = () => {
-
-        RTE.document.execCommand("bold")
-    }
+   
 
 
     return (
@@ -91,7 +87,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
                                             <ButtonGroup segmented>
                                                 <StylePopover onSetStyle={handleSetStyle} />
 
-                                                <Button size="medium" onClick={() => handleBold(RTE)}>
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("bold")}>
                                                     <BsTypeBold />
                                                 </Button>
 
@@ -179,8 +175,8 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
                 </div>
 
 
-            </FormLayout>
-        </Card>
+            </FormLayout >
+        </Card >
     )
 }
 
