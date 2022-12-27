@@ -2,7 +2,7 @@ import { Button, Popover, ActionList } from '@shopify/polaris';
 import { useState, useCallback, forwardRef } from 'react';
 import { BsBarChartSteps } from 'react-icons/bs';
 
-const AlignPopover = ({ onSetAlign }) => {
+const AlignPopover = () => {
     const [popoverActive, setPopoverActive] = useState(false);
 
 
@@ -33,7 +33,7 @@ const AlignPopover = ({ onSetAlign }) => {
                             content: 'Left align',
                             id: 'left',
                             onAction: () => {
-                                onSetAlign("left")
+                                RTE.document.execCommand("justifyLeft")
                                 togglePopoverActive()
                             }
                         },
@@ -41,7 +41,7 @@ const AlignPopover = ({ onSetAlign }) => {
                             content: 'Center align',
                             id: 'center',
                             onAction: () => {
-                                onSetAlign("center")
+                                RTE.document.execCommand("justifyCenter")
                                 togglePopoverActive()
                             }
                         },
@@ -49,7 +49,7 @@ const AlignPopover = ({ onSetAlign }) => {
                             content: 'Right align',
                             id: 'right',
                             onAction: () => {
-                                onSetAlign("right")
+                                RTE.document.execCommand("justifyRight")
                                 togglePopoverActive()
                             }
                         },

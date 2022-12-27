@@ -2,7 +2,7 @@ import { Button, Popover, ActionList } from '@shopify/polaris';
 import { useState, useCallback, forwardRef } from 'react';
 import { BsType } from 'react-icons/bs';
 
-const StylePopover = ({ onSetStyle }) => {
+const StylePopover = () => {
     const [popoverActive, setPopoverActive] = useState(false);
 
 
@@ -17,7 +17,37 @@ const StylePopover = ({ onSetStyle }) => {
         </Button>
     );
 
+    const items = [
+        {
+            content: 'Paragraph',
+            id: 'P',
 
+        },
+        {
+            content: 'Heading 1',
+            id: 'H1',
+        },
+        {
+            content: 'Heading 2',
+            id: 'H2',
+        },
+        {
+            content: 'Heading 3',
+            id: 'H3',
+        },
+        {
+            content: 'Heading 4',
+            id: 'H4',
+        },
+        {
+            content: 'Heading 5',
+            id: 'H5',
+        },
+        // {
+        //     content: 'Heading 6',
+        //     id: 'H6',
+        // },
+    ]
 
     return (
         <div>
@@ -28,51 +58,17 @@ const StylePopover = ({ onSetStyle }) => {
             >
                 <ActionList
                     actionRole="menuitem"
-                    items={[
-                        {
-                            content: 'Paragraph',
-                            id: 'para',
-                            onAction: () => {
-                                onSetStyle("para")
-                                togglePopoverActive()
+                    items={items.map(item => {
+                        return {
+                            ...item, onAction: () => {
+                                RTE.document.execCommand("formatBlock", false, item.id)
+                                setPopoverActive(false)
                             }
-                        },
-                        {
-                            content: 'Heading 1',
-                            id: 'h1',
-                            onAction: () => {
-                                onSetStyle("h1")
-                                togglePopoverActive()
-                            }
-
-                        },
-                        {
-                            content: 'Heading 2',
-                            id: 'h2',
-                            onAction: () => onSetStyle("h2")
-
-                        },
-                        {
-                            content: 'Heading 3',
-                            id: 'h3',
-                            onAction: () => onSetStyle("h3")
-
-                        },
-                        {
-                            content: 'Heading 4',
-                            id: 'h4',
-                            onAction: () => onSetStyle("h4")
-
-                        },
-                        {
-                            content: 'Heading 5',
-                            id: 'h5',
-                            onAction: () => onSetStyle("h5")
-                        },
-                    ]}
+                        }
+                    })}
                 />
             </Popover>
-        </div>
+        </div >
     );
 }
 

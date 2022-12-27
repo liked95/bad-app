@@ -51,7 +51,7 @@ export default function Edit() {
   const [bodyHTML, setBodyHTML] = useState("")
   const [loading, setLoading] = useState(false)
 
-  console.log(bodyHTML)
+  // console.log(bodyHTML)
 
   // radio button visiblity
   const [visiblity, setVisiblity] = useState(['visible']);

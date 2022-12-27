@@ -23,6 +23,7 @@ import { AiOutlineBgColors, AiOutlineLink, AiOutlineStop, AiOutlineVideoCamera, 
 import StylePopover from "../Popover/StylePopover";
 import AlignPopover from "../Popover/AlignPopover";
 import ColorPickerPopover from "../Popover/ColorPickerPopover";
+import "./Button.css"
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -35,6 +36,7 @@ const ToolWrapper = styled.div`
  padding: 8px;
  background-color: #fafbfb;
  border-bottom: 1px solid #c8cdcd;
+ 
 `
 
 const IframeWrapper = styled.div`
@@ -44,8 +46,7 @@ const IframeWrapper = styled.div`
 
 function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
     const iframeRef = useRef()
-    const [style, setStyle] = useState("para")
-    const [align, setAlign] = useState("left")
+
 
     useEffect(() => {
         iframeRef.current.contentDocument.designMode = "on"
@@ -54,15 +55,8 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
 
     }, []);
 
-    const handleSetStyle = value => {
-        setStyle(value)
-    }
 
-    const handleSetAlign = value => {
-        setAlign(value)
-    }
 
-   
 
 
     return (
@@ -85,18 +79,18 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
                                     <Stack spacing="tight">
                                         <Stack.Item>
                                             <ButtonGroup segmented>
-                                                <StylePopover onSetStyle={handleSetStyle} />
+                                                <StylePopover />
 
                                                 <Button size="medium" onClick={() => RTE.document.execCommand("bold")}>
                                                     <BsTypeBold />
                                                 </Button>
 
 
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("italic")}>
                                                     <BsTypeItalic />
                                                 </Button>
 
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("underline")}>
                                                     <BsTypeUnderline />
                                                 </Button>
                                             </ButtonGroup>
@@ -104,19 +98,19 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
 
                                         <Stack.Item>
                                             <ButtonGroup segmented>
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("insertUnorderedList")}>
                                                     <BsListUl />
                                                 </Button>
 
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("insertOrderedList")}>
                                                     <BsListOl />
                                                 </Button>
 
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("outdent")}>
                                                     <BsTextIndentRight />
                                                 </Button>
 
-                                                <Button size="medium">
+                                                <Button size="medium" onClick={() => RTE.document.execCommand("indent")}>
                                                     <BsTextIndentLeft />
                                                 </Button>
 
@@ -126,7 +120,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
 
                                         <Stack.Item>
                                             <ButtonGroup segmented>
-                                                <AlignPopover onSetAlign={handleSetAlign} />
+                                                <AlignPopover />
                                                 <ColorPickerPopover />
                                             </ButtonGroup>
                                         </Stack.Item>
