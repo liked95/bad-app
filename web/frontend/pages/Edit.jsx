@@ -13,7 +13,8 @@ import {
   TextField,
   ButtonGroup,
   Button,
-  ChoiceList
+  ChoiceList,
+  Frame
 } from "@shopify/polaris";
 
 
@@ -23,6 +24,8 @@ import { useAuthenticatedFetch } from "../hooks";
 import { headers } from "../custom-api";
 import { SinglePageSekeleton } from "../components/Skeleton/SinglePageSekeleton";
 import TextEditor from '../components/TextEditor'
+import ToastMessage from "../components/ToastMessage";
+import DeletePageModal from "../components/Modal/DeletePageModal";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -51,8 +54,12 @@ export default function Edit() {
   const [bodyHTML, setBodyHTML] = useState("")
   const [loading, setLoading] = useState(false)
   const [btnLoading, setBtnLoading] = useState(false)
+  const [toastActive, setToastActive] = useState(false)
+  const [toastContent, setToastContent] = useState("")
 
-  // console.log(bodyHTML)
+  // Delete modal
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
 
   // radio button visiblity
   const [visiblity, setVisiblity] = useState(['visible']);
@@ -67,6 +74,21 @@ export default function Edit() {
 
     let data = await res.json()
     return data
+  }
+
+
+  const deleteSinglePage = async (id) => {
+    await fetchApi(`/api/pages/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: 'application/json'
+      }
+    })
+    setToastActive(true)
+    setToastContent("Page deleted")
+    navigate("/")
+
   }
 
   useEffect(async () => {
@@ -104,6 +126,9 @@ export default function Edit() {
       let data = await res.json()
       console.log(data)
       setBtnLoading(false)
+
+      setToastActive(true)
+      setToastContent("Page was saved")
     } catch (error) {
       console.log(error)
     }
@@ -118,7 +143,7 @@ export default function Edit() {
 
 
   return (
-    <>
+    <Frame>
       {loading && <SinglePageSekeleton />}
 
       {!loading && <Page
@@ -172,8 +197,9 @@ export default function Edit() {
                 }
                 secondaryActions={[
                   {
-                    content: 'Cancel',
-                    onAction: () => navigate("/")
+                    content: 'Delete',
+                    destructive: true,
+                    onAction: () => setIsDeleteModalOpen(true)
                   },
                 ]}
               />
@@ -182,10 +208,22 @@ export default function Edit() {
 
         </form>
 
-
+        <ToastMessage
+          toastActive={toastActive}
+          toastContent={toastContent}
+          setToastActive={setToastActive}
+        />
 
 
       </Page>}
-    </>
+
+      <DeletePageModal
+        type='single'
+        isDeleteModalOpen={isDeleteModalOpen}
+        setIsDeleteModalOpen={setIsDeleteModalOpen}
+        deleteSinglePage={deleteSinglePage}
+        id={id}
+      />
+    </Frame>
   );
 }

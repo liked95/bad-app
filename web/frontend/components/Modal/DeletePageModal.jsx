@@ -1,41 +1,47 @@
-import { Button, Modal, TextContainer } from '@shopify/polaris';
+import { Button, FormLayout, Modal, Select, Stack, TextContainer, TextField } from '@shopify/polaris';
 import { useState, useCallback } from 'react';
 
-export default function DeletePageModal() {
-    const [active, setActive] = useState(false);
+export default function DeletePageModal({ id, type, isDeleteModalOpen, setIsDeleteModalOpen, handleDeletePages, deleteSinglePage}) {
+    const [link, setLink] = useState("")
 
-    const handleChange = useCallback(() => setActive(!active), [active]);
+    const handleClose = () => {
+        setIsDeleteModalOpen(false)
+        setLink("")
+    }
 
-    // const activator = <Button onClick={handleChange}>Open</Button>;
+
+
 
     return (
-        <div style={{ height: '500px' }}>
-            <Modal
-                // activator={activator}
-                open={active}
-                onClose={handleChange}
-                title="Reach more shoppers with Instagram product tags"
-                primaryAction={{
-                    content: 'Add Instagram',
-                    onAction: handleChange,
-                }}
-                secondaryActions={[
-                    {
-                        content: 'Learn more',
-                        onAction: handleChange,
-                    },
-                ]}
-            >
-                <Modal.Section>
-                    <TextContainer>
-                        <p>
-                            Use Instagram posts to share your products with millions of
-                            people. Let shoppers buy from your store without leaving
-                            Instagram.
-                        </p>
-                    </TextContainer>
-                </Modal.Section>
-            </Modal>
-        </div>
+        <Modal
+            activator={() => { }}
+            open={isDeleteModalOpen}
+            onClose={handleClose}
+            title="Delete "
+            primaryAction={{
+                content: type == 'multi' ? 'Delete' : 'Delete this page',
+                destructive: true,
+                onAction: () => {
+                    type == 'multi' ? handleDeletePages() : deleteSinglePage(id)
+                    handleClose()
+                }
+
+
+            }}
+            secondaryActions={[
+                {
+                    content: 'Cancel',
+                    onAction: handleClose
+                },
+            ]}
+        >
+            <Modal.Section>
+                <TextContainer>
+                    <p>
+                        Deleted pages cannot be recovered. Do you still want to continue?
+                    </p>
+                </TextContainer>
+            </Modal.Section>
+        </Modal>
     );
 }

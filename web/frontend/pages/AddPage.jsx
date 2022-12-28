@@ -13,7 +13,8 @@ import {
   TextField,
   ButtonGroup,
   Button,
-  ChoiceList
+  ChoiceList,
+  Frame
 
 } from "@shopify/polaris";
 
@@ -21,6 +22,8 @@ import { useCallback, useState } from "react";
 import { useAuthenticatedFetch } from "../hooks";
 
 import TextEditor from '../components/TextEditor'
+import Toast from "../components/ToastMessage";
+import ToastMessage from "../components/ToastMessage";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -47,6 +50,8 @@ export default function AddPage() {
   const [title, setTitle] = useState("")
   const [bodyHTML, setBodyHTML] = useState("")
   const [btnLoading, setBtnLoading] = useState(false)
+  const [toastActive, setToastActive] = useState(false)
+  const [toastContent, setToastContent] = useState("")
 
   console.log(bodyHTML)
 
@@ -75,6 +80,8 @@ export default function AddPage() {
 
       let data = await res.json()
       setBtnLoading(false)
+      setToastActive(true)
+      setToastContent("Page was created")
       navigate(`/edit?id=${data.id}`)
     } catch (error) {
       console.log(error)
@@ -87,72 +94,75 @@ export default function AddPage() {
 
 
   return (
-    <Page
-      breadcrumbs={[{ content: 'Admin panel', url: '/' }]}
-      title={"Add page"}
-    >
-      <form >
-        <Layout>
-          <Layout.Section >
-            <Card>
-              <TextEditor
-                title={title}
-                setTitle={setTitle}
-                bodyHTML={bodyHTML}
-                setBodyHTML={setBodyHTML}
-              />
-            </Card>
+    <Frame>
+      <Page
+        breadcrumbs={[{ content: 'Admin panel', url: '/' }]}
+        title={"Add page"}
+      >
+        <form >
+          <Layout>
+            <Layout.Section >
+              <Card>
+                <TextEditor
+                  title={title}
+                  setTitle={setTitle}
+                  bodyHTML={bodyHTML}
+                  setBodyHTML={setBodyHTML}
+                />
+              </Card>
 
-            <Card title="Search engine listing preview" sectioned>
-              <p>Add a title and description to see how this Page might appear in a search engine listing</p>
-            </Card>
-          </Layout.Section>
+              <Card title="Search engine listing preview" sectioned>
+                <p>Add a title and description to see how this Page might appear in a search engine listing</p>
+              </Card>
+            </Layout.Section>
 
-          <Layout.Section secondary>
-            <Card title="Visibility" sectioned>
-              <ChoiceList
-                choices={[
-                  { label: 'Visible', value: 'visible' },
-                  { label: 'Hidden', value: 'hidden' },
+            <Layout.Section secondary>
+              <Card title="Visibility" sectioned>
+                <ChoiceList
+                  choices={[
+                    { label: 'Visible', value: 'visible' },
+                    { label: 'Hidden', value: 'hidden' },
+                  ]}
+                  selected={visiblity}
+                  onChange={handleChange}
+                />
+              </Card>
+
+              <Card title="Online store" sectioned>
+                <p>Add tags to your order Near.</p>
+              </Card>
+            </Layout.Section>
+
+
+
+
+
+            <Layout.Section >
+              <PageActions
+                primaryAction={
+                  <Button
+                    primary
+                    onClick={handleCreatePage}
+                    loading={btnLoading}
+                  >Create</Button>
+                }
+                secondaryActions={[
+                  {
+                    content: 'Cancel',
+                    onAction: () => navigate("/")
+                  },
                 ]}
-                selected={visiblity}
-                onChange={handleChange}
               />
-            </Card>
+            </Layout.Section>
+          </Layout>
 
-            <Card title="Online store" sectioned>
-              <p>Add tags to your order Near.</p>
-            </Card>
-          </Layout.Section>
-
-
-
-
-
-          <Layout.Section >
-            <PageActions
-              primaryAction={
-                <Button
-                  primary
-                  onClick={handleCreatePage}
-                  loading={btnLoading}
-                >Create</Button>
-              }
-              secondaryActions={[
-                {
-                  content: 'Cancel',
-                  onAction: () => navigate("/")
-                },
-              ]}
-            />
-          </Layout.Section>
-        </Layout>
-
-      </form>
-
-
-
-
-    </Page>
+        </form>
+        <ToastMessage
+          toastActive={toastActive}
+          toastContent={toastContent}
+          setToastActive={setToastActive}
+        />
+      </Page>
+    </Frame>
   );
 }

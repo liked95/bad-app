@@ -14,6 +14,8 @@ import { useAuthenticatedFetch } from '../../hooks';
 import { useEffect } from 'react';
 import { formatDate, stripHTML } from '../../util';
 import { useNavigate } from '@shopify/app-bridge-react';
+import ToastMessage from '../ToastMessage';
+import DeletePageModal from '../Modal/DeletePageModal';
 
 
 function ResourceListWithFilter({ pageItems }) {
@@ -26,6 +28,15 @@ function ResourceListWithFilter({ pageItems }) {
     const [queryValue, setQueryValue] = useState("");
     const [sortValue, setSortValue] = useState('DATE_MODIFIED_DESC');
     const [option, setOption] = useState(null);
+
+
+    // toast 
+    const [toastActive, setToastActive] = useState(false)
+    const [toastContent, setToastContent] = useState("")
+
+    // Delete modal
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+
 
 
 
@@ -58,10 +69,6 @@ function ResourceListWithFilter({ pageItems }) {
     }, [option, queryValue, sortValue])
 
 
-    const showDeleteModal =  () => {
-        
-    }
-
 
     // DELETE PAGES
     const handleDeletePages = async () => {
@@ -85,6 +92,9 @@ function ResourceListWithFilter({ pageItems }) {
             setIsPageLoading(false)
             setPages(pageItems)
             setSelectedItems([])
+
+            setToastActive(true)
+            setToastContent("Pages deleted")
         } catch (error) {
             console.log(error)
         }
@@ -117,6 +127,9 @@ function ResourceListWithFilter({ pageItems }) {
             setIsPageLoading(false)
             setPages(pageItems)
             setSelectedItems([])
+
+            setToastActive(true)
+            setToastContent("Pages hidden")
         } catch (error) {
             console.log(error)
         }
@@ -148,6 +161,9 @@ function ResourceListWithFilter({ pageItems }) {
             setIsPageLoading(false)
             setPages(pageItems)
             setSelectedItems([])
+
+            setToastActive(true)
+            setToastContent("Pages shown")
         } catch (error) {
             console.log(error)
         }
@@ -204,7 +220,7 @@ function ResourceListWithFilter({ pageItems }) {
 
             content: 'Delete pages',
             destructive: true,
-            onAction: handleDeletePages,
+            onAction: () => setIsDeleteModalOpen(true),
         },
 
 
@@ -235,49 +251,65 @@ function ResourceListWithFilter({ pageItems }) {
 
 
     const filterControl = (
-        <Filters
-            queryValue={queryValue}
-            onQueryChange={value => setQueryValue(value)}
-            onQueryClear={() => {
-                setQueryValue("")
-                setPages(pageItems)
-            }}
-            filters={filters}
-            onClearAll={handleClearAll}
-            appliedFilters={appliedFilters}
+        <>
+            <Filters
+                queryValue={queryValue}
+                onQueryChange={value => setQueryValue(value)}
+                onQueryClear={() => {
+                    setQueryValue("")
+                    setPages(pageItems)
+                }}
+                filters={filters}
+                onClearAll={handleClearAll}
+                appliedFilters={appliedFilters}
 
 
-        >
+            >
 
-            <div style={{ paddingLeft: '8px' }}>
-                <Button onClick={() => console.log('New filter saved')}>Save</Button>
-            </div>
-        </Filters>
+                <div style={{ paddingLeft: '8px' }}>
+                    <Button onClick={() => console.log('New filter saved')}>Save</Button>
+                </div>
+            </Filters>
+
+            <ToastMessage
+                toastActive={toastActive}
+                toastContent={toastContent}
+                setToastActive={setToastActive}
+            />
+        </>
     );
 
     return (
-        <ResourceList
-            resourceName={resourceName}
-            items={pages}
-            renderItem={renderPage}
-            selectedItems={selectedItems}
-            onSelectionChange={setSelectedItems}
-            bulkActions={bulkActions}
-            sortValue={sortValue}
-            loading={isPageLoading}
-            sortOptions={[
-                { label: 'Newest update', value: 'DATE_MODIFIED_DESC' },
-                { label: 'Oldest update', value: 'DATE_MODIFIED_ASC' },
-                { label: 'Title A-Z', value: 'TITLE_ASC' },
-                { label: 'Title Z-A', value: 'TITLE_DESC' },
-            ]}
-            onSortChange={(selected) => {
-                setSortValue(selected);
-                console.log(`Sort option changed to ${selected}.`);
-            }}
+        <>
+            <ResourceList
+                resourceName={resourceName}
+                items={pages}
+                renderItem={renderPage}
+                selectedItems={selectedItems}
+                onSelectionChange={setSelectedItems}
+                bulkActions={bulkActions}
+                sortValue={sortValue}
+                loading={isPageLoading}
+                sortOptions={[
+                    { label: 'Newest update', value: 'DATE_MODIFIED_DESC' },
+                    { label: 'Oldest update', value: 'DATE_MODIFIED_ASC' },
+                    { label: 'Title A-Z', value: 'TITLE_ASC' },
+                    { label: 'Title Z-A', value: 'TITLE_DESC' },
+                ]}
+                onSortChange={(selected) => {
+                    setSortValue(selected);
+                    console.log(`Sort option changed to ${selected}.`);
+                }}
 
-            filterControl={filterControl}
-        />
+                filterControl={filterControl}
+            />
+            <DeletePageModal
+                type='multi'
+                isDeleteModalOpen={isDeleteModalOpen}
+                setIsDeleteModalOpen={setIsDeleteModalOpen}
+                handleDeletePages={handleDeletePages}
+            />
+        </>
     );
 
     function renderPage(page) {
@@ -288,7 +320,7 @@ function ResourceListWithFilter({ pageItems }) {
         return (
             <ResourceItem
                 id={id}
-                onClick={() => navigate(`/edit/?id=${id}`)} 
+                onClick={() => navigate(`/edit/?id=${id}`)}
             >
                 <h3>
                     <TextStyle variant="heading4xl" as="h1" variation='strong'>

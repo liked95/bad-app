@@ -7,7 +7,8 @@ import {
   Page,
   Tabs,
   FooterHelp,
-  Link
+  Link,
+  Frame
 } from "@shopify/polaris";
 
 import {
@@ -25,7 +26,7 @@ export default function HomePage() {
   const navigate = useNavigate();
   const [pages, setPages] = useState([])
   const [loading, setLoading] = useState(true)
-  
+
 
 
   let fetchApi = useAuthenticatedFetch()
@@ -73,50 +74,52 @@ export default function HomePage() {
 
 
   return (
-    <Page
-      title="My Shopify Pages"
-      primaryAction={{ content: "Add page", onAction: () => navigate("/addpage") }}
-    >
+    <Frame>
+      <Page
+        title="My Shopify Pages"
+        primaryAction={{ content: "Add page", onAction: () => navigate("/addpage") }}
+      >
 
-      {loading && <HomePageSkeleton />}
+        {loading && <HomePageSkeleton />}
 
-      {!loading && <Layout>
-        <Layout.Section>
-          <Banner
-            status="info"
-            icon={LockIcon}
-            title="Store access is restricted"
-            action={{ content: "See store password", onAction: () => getPages() }}
-          >
-            <p>While your online store is in development, only visitors with the password can access it.</p>
+        {!loading && <Layout>
+          <Layout.Section>
+            <Banner
+              status="info"
+              icon={LockIcon}
+              title="Store access is restricted"
+              action={{ content: "See store password", onAction: () => getPages() }}
+            >
+              <p>While your online store is in development, only visitors with the password can access it.</p>
 
-          </Banner>
-        </Layout.Section>
+            </Banner>
+          </Layout.Section>
 
-        <Layout.Section>
-          <Card>
-            <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
-              <ResourceListWithFilter pageItems={pages}  />
-            </Tabs>
+          <Layout.Section>
+            <Card>
+              <Tabs tabs={tabs} selected={selected} onSelect={handleTabChange}>
+                <ResourceListWithFilter pageItems={pages} />
+              </Tabs>
 
-          </Card>
-        </Layout.Section>
+            </Card>
+          </Layout.Section>
 
-        <Layout.Section>
-          <FooterHelp>
-            Learn more about{' '}
-            <Link url="https://help.shopify.com/en/manual/online-store/themes/theme-structure/pages">
-              pages
-            </Link>
-          </FooterHelp>
-        </Layout.Section>
-      </Layout>
+          <Layout.Section>
+            <FooterHelp>
+              Learn more about{' '}
+              <Link url="https://help.shopify.com/en/manual/online-store/themes/theme-structure/pages">
+                pages
+              </Link>
+            </FooterHelp>
+          </Layout.Section>
+        </Layout>
 
-      }
+        }
 
-      {/* <DeletePageModal/> */}
+        {/* <DeletePageModal/> */}
 
 
-    </Page>
+      </Page> 
+    </Frame>
   );
 }
