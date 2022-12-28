@@ -80,6 +80,32 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
         }
     }
 
+    const handleChangeIframeContent = (e) => {
+        console.log(e)
+    }
+
+    useEffect(() => {
+        // Select the node that will be observed for mutations
+        const target = document.querySelector('#shopify-editor').contentDocument.body;
+    
+
+        const observer = new MutationObserver(function (mutations) {
+            // console.log(target.innerHTML)
+            setBodyHTML(target.innerHTML)
+        });
+        // Pass in the target node, as well as the observer options.
+        observer.observe(target, {
+            attributes: true,
+            childList: true,
+            subtree: true,
+            characterData: true
+        });
+
+        return () => observer.disconnect()
+
+
+    }, [])
+
 
 
 
@@ -218,7 +244,8 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
                             </ToolWrapper>
 
                             <IframeWrapper >
-                                <iframe style={{ width: "100%", height: 200, border: 'none', position: 'relative' }}
+                                <iframe style={{ width: "100%", height: 250, border: 'none', position: 'relative' }}
+                                    onChange={handleChangeIframeContent}
                                     id="shopify-editor"
                                     name="RTE"
                                     ref={iframeRef}>

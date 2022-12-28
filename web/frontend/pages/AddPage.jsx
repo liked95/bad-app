@@ -20,6 +20,8 @@ import {
 import { useCallback, useState } from "react";
 import { useAuthenticatedFetch } from "../hooks";
 
+import TextEditor from '../components/TextEditor'
+
 const ContentWrapper = styled.div`
  margin-top: 5px;
  border: 1px solid #c8cdcd;
@@ -43,31 +45,40 @@ export default function AddPage() {
 
   // Title and editable area
   const [title, setTitle] = useState("")
-  const [textValue, setTextValue] = useState("")
+  const [bodyHTML, setBodyHTML] = useState("")
+  const [btnLoading, setBtnLoading] = useState(false)
+
+  console.log(bodyHTML)
 
   // radio button visiblity
   const [visiblity, setVisiblity] = useState(['visible']);
   const handleChange = useCallback((value) => setVisiblity(value), []);
-  console.log(visiblity)
+  // console.log(bodyHTML)
 
   const handleCreatePage = async () => {
-    let res = await fetchApi('/api/pages', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(
-        {
-          title: title,
-          body_html: textValue,
-          published: visiblity[0] == 'visible'
-        }
-      )
-    })
+    try {
+      setBtnLoading(true)
+      let res = await fetchApi('/api/pages', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: 'application/json'
+        },
+        body: JSON.stringify(
+          {
+            title: title,
+            body_html: bodyHTML,
+            published: visiblity[0] == 'visible'
+          }
+        )
+      })
 
-    let data = await res.json()
-    console.log(data)
+      let data = await res.json()
+      setBtnLoading(false)
+      navigate(`/edit?id=${data.id}`)
+    } catch (error) {
+      console.log(error)
+    }
   }
 
 
@@ -78,83 +89,18 @@ export default function AddPage() {
   return (
     <Page
       breadcrumbs={[{ content: 'Admin panel', url: '/' }]}
-      title="Add page"
+      title={"Add page"}
     >
       <form >
         <Layout>
           <Layout.Section >
-            <Card sectioned>
-              <FormLayout>
-                <TextField
-                  label="Title"
-                  value={title}
-                  onChange={value => setTitle(value)}
-                  autoComplete="off" />
-
-
-                <div>
-                  <p> Content</p>
-                  <ContentWrapper>
-                    <ToolWrapper>
-                      <Stack wrap={false}>
-
-                        <Stack.Item fill>
-                          <Stack spacing="tight">
-                            <Stack.Item>
-                              <ButtonGroup segmented>
-                                <Button size="slim">Bold</Button>
-                                <Button size="slim">Italic</Button>
-                                <Button size="slim">Underline</Button>
-                              </ButtonGroup>
-                            </Stack.Item>
-
-                            <Stack.Item>
-                              <ButtonGroup segmented>
-                                <Button size="slim">Bold</Button>
-                                <Button size="slim">Italic</Button>
-                                <Button size="slim">Bad</Button>
-                              </ButtonGroup>
-                            </Stack.Item>
-
-                            <Stack.Item>
-                              <ButtonGroup segmented>
-                                <Button size="slim">Bold</Button>
-                                <Button size="slim">Italic</Button>
-                              </ButtonGroup>
-                            </Stack.Item>
-
-                            <Stack.Item>
-                              <ButtonGroup segmented>
-                                <Button size="slim">Bold</Button>
-                                <Button size="slim">Italic</Button>
-                                <Button size="slim">Bold</Button>
-                                <Button size="slim">Italic</Button>
-                                <Button size="slim">Bold</Button>
-                              </ButtonGroup>
-                            </Stack.Item>
-                          </Stack>
-                        </Stack.Item>
-
-
-                        <Stack.Item >
-                          <Button size="slim">Right</Button>
-                        </Stack.Item>
-
-                      </Stack>
-                    </ToolWrapper>
-
-                    <IframeWrapper>
-                      <textarea
-                        value={textValue}
-                        onChange={e => setTextValue(e.target.value)}>
-
-                      </textarea>
-                    </IframeWrapper>
-                  </ContentWrapper>
-                </div>
-
-
-              </FormLayout>
+            <Card>
+              <TextEditor
+                title={title}
+                setTitle={setTitle}
+                bodyHTML={bodyHTML}
+                setBodyHTML={setBodyHTML}
+              />
             </Card>
 
             <Card title="Search engine listing preview" sectioned>
@@ -185,13 +131,17 @@ export default function AddPage() {
 
           <Layout.Section >
             <PageActions
-              primaryAction={{
-                content: 'Save',
-                onAction: handleCreatePage
-              }}
+              primaryAction={
+                <Button
+                  primary
+                  onClick={handleCreatePage}
+                  loading={btnLoading}
+                >Create</Button>
+              }
               secondaryActions={[
                 {
                   content: 'Cancel',
+                  onAction: () => navigate("/")
                 },
               ]}
             />
@@ -199,6 +149,8 @@ export default function AddPage() {
         </Layout>
 
       </form>
+
+
 
 
     </Page>

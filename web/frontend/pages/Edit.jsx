@@ -42,14 +42,15 @@ const IframeWrapper = styled.div`
 `
 
 export default function Edit() {
-
-  var id = new URLSearchParams(location.search).get("id")
+  const navigate = useNavigate()
+  let id = new URLSearchParams(location.search).get("id")
   let fetchApi = useAuthenticatedFetch()
 
   // Title and editable area
   const [title, setTitle] = useState("")
   const [bodyHTML, setBodyHTML] = useState("")
   const [loading, setLoading] = useState(false)
+  const [btnLoading, setBtnLoading] = useState(false)
 
   // console.log(bodyHTML)
 
@@ -85,24 +86,28 @@ export default function Edit() {
 
   const handleUpdatePage = async () => {
     // check if content is changed
-    
-    let res = await fetchApi('/api/pages', {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Accept: 'application/json'
-      },
-      body: JSON.stringify(
-        {
+    try {
+      setBtnLoading(true)
+      let res = await fetchApi(`/api/pages/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: 'application/json'
+        },
+        body: JSON.stringify({
+          isShown: visiblity[0] == 'visible',
           title: title,
-          body_html: bodyHTML,
-          published: visiblity[0] == 'visible'
-        }
-      )
-    })
+          body_html: bodyHTML
+        })
+      })
 
-    let data = await res.json()
-    console.log(data)
+      let data = await res.json()
+      console.log(data)
+      setBtnLoading(false)
+    } catch (error) {
+      console.log(error)
+    }
+
   }
 
   // text editor
@@ -156,17 +161,19 @@ export default function Edit() {
 
 
 
-
-
             <Layout.Section >
               <PageActions
-                primaryAction={{
-                  content: 'Save',
-                  onAction: handleUpdatePage
-                }}
+                primaryAction={
+                  <Button
+                    primary
+                    onClick={handleUpdatePage}
+                    loading={btnLoading}
+                  >Save</Button>
+                }
                 secondaryActions={[
                   {
                     content: 'Cancel',
+                    onAction: () => navigate("/")
                   },
                 ]}
               />

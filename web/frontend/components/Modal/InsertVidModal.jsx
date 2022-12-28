@@ -9,10 +9,11 @@ export default function InsertVidModal({ isInsertVidModalOpen, setIsInsertVidMod
         setLink("")
     }
 
-    const handleInsertImage = () => {
-        RTE.document.execCommand("insertImage", false, link.trim())
+    const handleInsertVideo = () => {
+        RTE.document.execCommand("insertHTML", false, link.trim())
         handleClose()
     }
+
     return (
         <Modal
             activator={() => { }}
@@ -22,7 +23,7 @@ export default function InsertVidModal({ isInsertVidModalOpen, setIsInsertVidMod
             primaryAction={{
                 content: 'Insert Video',
                 disabled: !link.trim(),
-                onAction: handleInsertImage
+                onAction: handleInsertVideo
             }}
             secondaryActions={[
                 {

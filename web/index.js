@@ -127,6 +127,8 @@ app.put("/api/pages/:id", async (_req, res) => {
     });
     page.id = _req.params.id
     page.published = _req.body.isShown
+    if (_req.body.title) page.title = _req.body.title
+    if (_req.body.body_html) page.body_html = _req.body.body_html
 
     await page.save({
       update: true,
