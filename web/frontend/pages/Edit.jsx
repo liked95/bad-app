@@ -53,6 +53,7 @@ export default function Edit() {
   // Title and editable area
   const [title, setTitle] = useState("")
   const [bodyHTML, setBodyHTML] = useState("")
+  const [handle, setHandle] = useState("")
 
 
   const [loading, setLoading] = useState(false)
@@ -101,6 +102,7 @@ export default function Edit() {
       console.log(data)
       setTitle(data.title)
       setBodyHTML(data.body_html)
+      setHandle(data.handle)
       setLoading(false)
       data.published_at ? setVisiblity(['visible']) : setVisiblity(['hidden'])
     } catch (error) {
@@ -168,6 +170,7 @@ export default function Edit() {
               <EnginePreview 
                 title={title}
                 bodyHTML={bodyHTML}
+                urlHandle={handle}
               />
             </Layout.Section>
 

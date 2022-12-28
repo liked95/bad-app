@@ -1,5 +1,5 @@
 import { Card, FormLayout, TextField } from '@shopify/polaris'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import styled from 'styled-components'
 import { convertToPlain, stripHTML } from '../util'
 
@@ -30,14 +30,21 @@ const DescriptionPreview = styled.p`
     word-break: break-word;
 `
 
-function EnginePreview({ title, bodyHTML }) {
+function EnginePreview({ title, bodyHTML, urlHandle }) {
     const [isSeoOpen, setisSeoOpen] = useState(false)
     const [seoTitle, setSeoTitle] = useState("")
     const [seoDescription, setSeoDescription] = useState("")
-    const [handle, setHandle] = useState(title.trim().replace(/\s+/g, '-').toLowerCase())
+    const [handle, setHandle] = useState(urlHandle || title)
+
+    
+    useEffect(() => {
+        if (!urlHandle) {
+            setHandle(title.replace(/\s+/g, '-').toLowerCase())
+        }
+    }, [title])
 
     const baseURL = `https://my-bad-app.myshopify.com/pages/`
-    console.log(title, bodyHTML)
+    // console.log(title, bodyHTML)
     const handleShowSeoSettings = () => {
         setisSeoOpen(prev => !prev)
     }
