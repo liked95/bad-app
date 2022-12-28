@@ -24,6 +24,7 @@ import { useAuthenticatedFetch } from "../hooks";
 import TextEditor from '../components/TextEditor'
 import Toast from "../components/ToastMessage";
 import ToastMessage from "../components/ToastMessage";
+import EnginePreview from "../components/EnginePreview";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -111,9 +112,11 @@ export default function AddPage() {
                 />
               </Card>
 
-              <Card title="Search engine listing preview" sectioned>
-                <p>Add a title and description to see how this Page might appear in a search engine listing</p>
-              </Card>
+              <EnginePreview
+                title={title}
+                bodyHTML={bodyHTML}
+              />
+
             </Layout.Section>
 
             <Layout.Section secondary>

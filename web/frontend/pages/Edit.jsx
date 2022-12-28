@@ -26,6 +26,7 @@ import { SinglePageSekeleton } from "../components/Skeleton/SinglePageSekeleton"
 import TextEditor from '../components/TextEditor'
 import ToastMessage from "../components/ToastMessage";
 import DeletePageModal from "../components/Modal/DeletePageModal";
+import EnginePreview from "../components/EnginePreview";
 
 const ContentWrapper = styled.div`
  margin-top: 5px;
@@ -52,6 +53,8 @@ export default function Edit() {
   // Title and editable area
   const [title, setTitle] = useState("")
   const [bodyHTML, setBodyHTML] = useState("")
+
+
   const [loading, setLoading] = useState(false)
   const [btnLoading, setBtnLoading] = useState(false)
   const [toastActive, setToastActive] = useState(false)
@@ -162,9 +165,10 @@ export default function Edit() {
                 />
               </Card>
 
-              <Card title="Search engine listing preview" sectioned>
-                <p>Add a title and description to see how this Page might appear in a search engine listing</p>
-              </Card>
+              <EnginePreview 
+                title={title}
+                bodyHTML={bodyHTML}
+              />
             </Layout.Section>
 
             <Layout.Section secondary>

@@ -12,7 +12,7 @@ import {
 } from '@shopify/polaris';
 import { useAuthenticatedFetch } from '../../hooks';
 import { useEffect } from 'react';
-import { formatDate, stripHTML } from '../../util';
+import { convertToPlain, formatDate, stripHTML } from '../../util';
 import { useNavigate } from '@shopify/app-bridge-react';
 import ToastMessage from '../ToastMessage';
 import DeletePageModal from '../Modal/DeletePageModal';
@@ -332,7 +332,7 @@ function ResourceListWithFilter({ pageItems }) {
 
                 <div>
                     <TextStyle variant="heading4xl" as="h2" variation='subdued'>
-                        {stripHTML(body_html)}
+                        {convertToPlain(body_html)}
                     </TextStyle>
                 </div>
 

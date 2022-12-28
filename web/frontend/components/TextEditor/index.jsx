@@ -56,7 +56,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
     const [isCreateLinkModalOpen, setIsCreateLinkModalOpen] = useState(false)
     const [isInsertImageModalOpen, setIsInsertImageModalOpen] = useState(false)
     const [isInsertVidModalOpen, setIsInsertVidModalOpen] = useState(false)
-    const [showHTML, setShowHTML] = useState(false)
+    const [isEditing, setShowIsEditing] = useState(true)
 
     const iframeRef = useRef()
 
@@ -69,25 +69,24 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
     }, []);
 
     const handleToggleCode = () => {
-        setShowHTML(prev => !prev)
+        setShowIsEditing(prev => !prev)
         console.log(iframeRef.current.contentDocument.body.innerHTML)
         let textArea = iframeRef.current.contentDocument.body
 
-        if (!showHTML) {
+        if (isEditing) {
             textArea.textContent = textArea.innerHTML
+
         } else {
             textArea.innerHTML = textArea.textContent
         }
     }
 
-    const handleChangeIframeContent = (e) => {
-        console.log(e)
-    }
+
 
     useEffect(() => {
         // Select the node that will be observed for mutations
         const target = document.querySelector('#shopify-editor').contentDocument.body;
-    
+
 
         const observer = new MutationObserver(function (mutations) {
             // console.log(target.innerHTML)
@@ -127,7 +126,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
                             <ToolWrapper>
                                 <Stack wrap={false} distribution="trailing">
 
-                                    {!showHTML && <Stack.Item fill>
+                                    {isEditing && <Stack.Item fill>
                                         <Stack spacing="tight">
                                             <Stack.Item>
                                                 <ButtonGroup segmented>
@@ -233,7 +232,7 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
 
 
                                     <Stack.Item >
-                                        <Tooltip content={showHTML ? "Show code" : "Show editor"}>
+                                        <Tooltip content={isEditing ? "Show editor" : "Show code"}>
                                             <Button size="medium" onClick={handleToggleCode}>
                                                 <BsCodeSlash />
                                             </Button>
@@ -245,7 +244,6 @@ function TextEditor({ title, bodyHTML, setTitle, setBodyHTML }) {
 
                             <IframeWrapper >
                                 <iframe style={{ width: "100%", height: 250, border: 'none', position: 'relative' }}
-                                    onChange={handleChangeIframeContent}
                                     id="shopify-editor"
                                     name="RTE"
                                     ref={iframeRef}>
