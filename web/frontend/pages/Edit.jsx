@@ -69,6 +69,12 @@ export default function Edit() {
   const [visiblity, setVisiblity] = useState(['visible']);
   const handleChange = useCallback((value) => setVisiblity(value), []);
 
+  // store initial values for comparison
+  const [initTitle, setInitTitle] = useState("")
+  const [initBodyHTML, setInitBodyHTML] = useState("")
+  const [initVisibility, setInitVisibility] = useState("")
+
+
 
   const getSinglePage = async () => {
     let res = await fetchApi(`/api/pages/${id}`, {
@@ -95,24 +101,14 @@ export default function Edit() {
 
   }
 
-  useEffect(async () => {
-    try {
-      setLoading(true)
-      let data = await getSinglePage()
-      console.log(data)
-      setTitle(data.title)
-      setBodyHTML(data.body_html)
-      setHandle(data.handle)
-      setLoading(false)
-      data.published_at ? setVisiblity(['visible']) : setVisiblity(['hidden'])
-    } catch (error) {
-      console.log(error)
-    }
-  }, [id]);
+
+
+
+  // determine i f
+  const isContentUnchanged = (title == initTitle) && (bodyHTML == initBodyHTML) && (visiblity[0] == initVisibility)
 
 
   const handleUpdatePage = async () => {
-    // check if content is changed
     try {
       setBtnLoading(true)
       let res = await fetchApi(`/api/pages/${id}`, {
@@ -131,9 +127,13 @@ export default function Edit() {
       let data = await res.json()
       console.log(data)
       setBtnLoading(false)
-
       setToastActive(true)
       setToastContent("Page was saved")
+
+      // setInitData for new values
+      setInitTitle(data.title)
+      setInitBodyHTML(data.body_html)
+      setInitVisibility(data.published_at ? 'visible' : 'hidden')
     } catch (error) {
       console.log(error)
     }
@@ -141,7 +141,27 @@ export default function Edit() {
   }
 
   // text editor
+  useEffect(async () => {
+    try {
+      setLoading(true)
+      let data = await getSinglePage()
+      console.log(data)
 
+      setTitle(data.title)
+      setInitTitle(data.title)
+
+      setBodyHTML(data.body_html)
+      setInitBodyHTML(data.body_html)
+
+      setHandle(data.handle)
+      setLoading(false)
+      data.published_at ? setVisiblity(['visible']) : setVisiblity(['hidden'])
+      setInitVisibility(data.published_at ? 'visible' : 'hidden')
+
+    } catch (error) {
+      console.log(error)
+    }
+  }, [id]);
 
 
 
@@ -167,7 +187,7 @@ export default function Edit() {
                 />
               </Card>
 
-              <EnginePreview 
+              <EnginePreview
                 title={title}
                 bodyHTML={bodyHTML}
                 urlHandle={handle}
@@ -187,7 +207,7 @@ export default function Edit() {
               </Card>
 
               <Card title="Online store" sectioned>
-                <p>Add tags to your order Near.</p>
+                <p>Add tags to your order</p>
               </Card>
             </Layout.Section>
 
@@ -200,6 +220,7 @@ export default function Edit() {
                     primary
                     onClick={handleUpdatePage}
                     loading={btnLoading}
+                    disabled={isContentUnchanged}
                   >Save</Button>
                 }
                 secondaryActions={[

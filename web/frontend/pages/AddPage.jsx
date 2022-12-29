@@ -132,7 +132,7 @@ export default function AddPage() {
               </Card>
 
               <Card title="Online store" sectioned>
-                <p>Add tags to your order Near.</p>
+                <p>Add tags to your order.</p>
               </Card>
             </Layout.Section>
 
